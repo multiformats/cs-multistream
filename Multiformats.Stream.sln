@@ -3,7 +3,25 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Multiformats.Stream", "Multiformats.Stream\Multiformats.Stream.csproj", "{AA02D0E3-4F1B-452C-AE6D-AF4D18ED5554}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Multiformats.Stream.Tests", "Multiformats.Stream.Tests\Multiformats.Stream.Tests.csproj", "{A97E2A74-7A1B-4EB3-B9C0-350FAEB05C48}"
+EndProject
 Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{AA02D0E3-4F1B-452C-AE6D-AF4D18ED5554}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AA02D0E3-4F1B-452C-AE6D-AF4D18ED5554}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AA02D0E3-4F1B-452C-AE6D-AF4D18ED5554}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AA02D0E3-4F1B-452C-AE6D-AF4D18ED5554}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A97E2A74-7A1B-4EB3-B9C0-350FAEB05C48}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A97E2A74-7A1B-4EB3-B9C0-350FAEB05C48}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A97E2A74-7A1B-4EB3-B9C0-350FAEB05C48}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A97E2A74-7A1B-4EB3-B9C0-350FAEB05C48}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection

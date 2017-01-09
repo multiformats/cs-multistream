@@ -9,7 +9,7 @@
 [![Codecov](https://img.shields.io/codecov/c/github/tabrath/cs-multistream/master.svg?style=flat-square)](https://codecov.io/gh/tabrath/cs-multistream)
 [![Libraries.io](https://img.shields.io/librariesio/github/tabrath/cs-multistream.svg?style=flat-square)](https://libraries.io/github/tabrath/cs-multistream)
 
-> [Multihash](https://github.com/multiformats/multistream) implementation in C#
+> [Multistream](https://github.com/multiformats/multistream) implementation in C#
 
 ## Table of Contents
 

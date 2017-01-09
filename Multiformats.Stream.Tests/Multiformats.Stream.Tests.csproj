@@ -42,8 +42,8 @@
       <HintPath>..\packages\BouncyCastle.1.8.1\lib\BouncyCastle.Crypto.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="LibP2P.IO, Version=1.0.3.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\LibP2P.IO.1.0.3\lib\net461\LibP2P.IO.dll</HintPath>
+    <Reference Include="LibP2P.IO, Version=1.0.4.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\LibP2P.IO.1.0.4\lib\net461\LibP2P.IO.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="LibP2P.Utilities, Version=1.0.5.0, Culture=neutral, processorArchitecture=MSIL">

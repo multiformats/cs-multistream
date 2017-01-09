@@ -6,12 +6,11 @@
     <title>$title$</title>
     <authors>$author$</authors>
     <owners>$author$</owners>
-    <licenseUrl>https://github.com/tabrath/cs-multistream/LICENSE</licenseUrl>
     <projectUrl>https://github.com/tabrath/cs-multistream</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
     <releaseNotes>WIP</releaseNotes>
-    <copyright>Copyright 2016</copyright>
+    <copyright>Copyright 2017</copyright>
     <tags>multiformats multistream stream mux</tags>
   </metadata>
 </package>

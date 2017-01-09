@@ -42,8 +42,8 @@
       <HintPath>..\packages\BouncyCastle.1.8.1\lib\BouncyCastle.Crypto.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="LibP2P.IO, Version=1.0.3.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\LibP2P.IO.1.0.3\lib\net461\LibP2P.IO.dll</HintPath>
+    <Reference Include="LibP2P.IO, Version=1.0.4.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\LibP2P.IO.1.0.4\lib\net461\LibP2P.IO.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="LibP2P.Utilities, Version=1.0.5.0, Culture=neutral, processorArchitecture=MSIL">
@@ -92,7 +92,8 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>"C:\Program Files (x86)\MSBuild\NuProj\NuGet.exe" pack "$(ProjectPath)" -Properties Configuration=Release -IncludeReferencedProjects -OutputDirectory "C:\Users\tabrath\Google Drive\Development\cs\_nuget_feed"</PostBuildEvent>
+    <PostBuildEvent>
+    </PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

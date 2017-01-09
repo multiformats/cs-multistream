@@ -74,8 +74,7 @@ namespace Multiformats.Stream
 
         public override void Write(byte[] buffer, int offset, int count)
         {
-            if (!_handshaker.EnsureHandshakeCompleteAsync(MultistreamHandshaker.HandshakeDirection.Outgoing, CancellationToken.None).Wait(TimeSpan.FromSeconds(3)))
-                return;
+            _handshaker.EnsureHandshakeComplete(MultistreamHandshaker.HandshakeDirection.Outgoing);
 
             _stream.Write(buffer, offset, count);
         }

@@ -1,0 +1,14 @@
+language: csharp
+solution: Multiformats.Stream.sln
+branches:
+  only:
+    - master
+install:
+  - nuget restore Multiformats.Stream/packages.config -PackagesDirectory ./packages
+  - nuget restore Multiformats.Stream.Tests/packages.config -PackagesDirectory ./packages
+script:
+  - xbuild /p:Configuration=Release Multiformats.Stream.sln
+  - mono ./packages/NUnit.ConsoleRunner.3.5.0/tools/nunit3-console.exe ./Multiformats.Stream.Tests/bin/Release/Multiformats.Stream.Tests.dll
+cache:
+  - directories:
+    - ./packages

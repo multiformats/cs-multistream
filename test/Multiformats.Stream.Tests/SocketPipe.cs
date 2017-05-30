@@ -31,6 +31,17 @@ namespace Multiformats.Stream.Tests
             listener.Bind(endPoint);
             listener.Listen(1);
             var tcs = new TaskCompletionSource<Socket>();
+#if NETCOREAPP1_1
+            listener.AcceptAsync().ContinueWith(t =>
+            {
+                if (t.IsFaulted)
+                    tcs.TrySetException(t.Exception);
+                if (t.IsCanceled)
+                    tcs.TrySetCanceled();
+                else
+                    tcs.TrySetResult(t.Result);
+            });
+#else
             listener.BeginAccept(ar =>
             {
                 var socket = ((Socket) ar.AsyncState).EndAccept(ar);
@@ -39,8 +50,19 @@ namespace Multiformats.Stream.Tests
                 else
                     tcs.TrySetException(new Exception("Socket did not connect"));
             }, listener);
-
+#endif
             var tcsA = new TaskCompletionSource<bool>();
+#if NETCOREAPP1_1
+            aSocket.ConnectAsync(endPoint).ContinueWith(t =>
+            {
+                if (t.IsFaulted)
+                    tcsA.TrySetException(t.Exception);
+                if (t.IsCanceled)
+                    tcsA.TrySetCanceled();
+                else
+                    tcsA.TrySetResult(aSocket.Connected);
+            });
+#else
             aSocket.BeginConnect(endPoint, ar =>
             {
                 var socket = ((Socket) ar.AsyncState);
@@ -49,6 +71,7 @@ namespace Multiformats.Stream.Tests
                 tcsA.TrySetResult(socket.Connected);
             }, aSocket);
 
+#endif
             if (!tcs.Task.Wait(timeout))
                 throw new Exception("Could not accept connection");
 

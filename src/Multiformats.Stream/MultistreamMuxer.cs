@@ -6,7 +6,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using BinaryEncoding;
-using LibP2P.Utilities.Extensions;
 
 namespace Multiformats.Stream
 {
@@ -155,7 +154,7 @@ namespace Multiformats.Stream
 
             if (token != ProtocolId)
             {
-                stream.Close();
+                stream.Dispose();
                 throw ErrIncorrectVersion;
             }
 
@@ -196,7 +195,7 @@ namespace Multiformats.Stream
 
             if (token != ProtocolId)
             {
-                stream.Close();
+                stream.Dispose();
                 throw ErrIncorrectVersion;
             }
 
@@ -289,7 +288,8 @@ namespace Multiformats.Stream
                 total += res;
                 if (total == (int) length)
                     break;
-                Thread.Sleep(1);
+
+                Task.Delay(1).Wait();
             }
             if (res <= 0)
                 return string.Empty;

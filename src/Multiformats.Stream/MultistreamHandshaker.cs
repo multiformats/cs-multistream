@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using LibP2P.Utilities.Extensions;
 
 namespace Multiformats.Stream
 {

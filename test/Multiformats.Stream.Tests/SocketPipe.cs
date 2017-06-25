@@ -15,9 +15,11 @@ namespace Multiformats.Stream.Tests
         {
             return new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp)
             {
+#if NET4
                 ExclusiveAddressUse = false,
                 NoDelay = false,
                 LingerState = new LingerOption(true, 5),
+#endif
             };
         }
 

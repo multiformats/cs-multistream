@@ -112,7 +112,7 @@ namespace Multiformats.Stream.Tests
         {
             UsePipeWithMuxer(async (a, b, mux) =>
             {
-                mux.NegotiateAsync(a, CancellationToken.None);
+                await mux.NegotiateAsync(a, CancellationToken.None);
 
                 var ms = Multistream.Create(b, "/THIS_IS_WRONG");
 
@@ -180,7 +180,7 @@ namespace Multiformats.Stream.Tests
                 mux.AddHandler(new TestHandler("/b", null));
                 mux.AddHandler(new TestHandler("/c", null));
 
-                mux.NegotiateAsync(a, CancellationToken.None);
+                await mux.NegotiateAsync(a, CancellationToken.None);
 
                 await Assert.ThrowsAsync<NotSupportedException>(() => MultistreamMuxer.SelectOneOfAsync(new[] { "/d", "/e" }, b, CancellationToken.None));
             });
@@ -241,7 +241,7 @@ namespace Multiformats.Stream.Tests
                 mux.AddHandler(new TestHandler("/c", null));
 
                 var done = new ManualResetEvent(false);
-                Task.Run(async () =>
+                await Task.Run(async () =>
                 {
                     var selected = await mux.NegotiateAsync(a, CancellationToken.None);
 
@@ -370,7 +370,7 @@ namespace Multiformats.Stream.Tests
                     return true;
                 });
 
-                MultistreamMuxer.SelectProtoOrFailAsync("/foo", a, CancellationToken.None);
+                await MultistreamMuxer.SelectProtoOrFailAsync("/foo", a, CancellationToken.None);
 
                 var result = await mux.HandleAsync(b, CancellationToken.None);
 

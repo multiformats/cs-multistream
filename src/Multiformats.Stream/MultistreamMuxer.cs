@@ -259,9 +259,8 @@ namespace Multiformats.Stream
             using (var buffer = new MemoryStream())
             {
                 await DelimWriteAsync(buffer, message, cancellationToken).ConfigureAwait(false);
-
-                var bytes = buffer.ToArray();
-                await stream.WriteAsync(bytes, 0, bytes.Length, cancellationToken).ConfigureAwait(false);
+                buffer.Seek(0, SeekOrigin.Begin);
+                await buffer.CopyToAsync(stream, 4096, cancellationToken).ConfigureAwait(false);
             }
             await stream.FlushAsync(cancellationToken);
         }

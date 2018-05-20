@@ -36,43 +36,11 @@ namespace Multiformats.Stream
             _readLock = new SemaphoreSlim(1,1);
             _writeLock = new SemaphoreSlim(1,1);
         }
-
-        public void EnsureHandshakeComplete(HandshakeDirection direction)
-        {
-            if (IsComplete)
-                return;
-            //if (_lock.Read(() => _hasReceived && _hasSent))
-            //    return;
-
-            Task task = null;
-
-            switch (direction)
-            {
-                case HandshakeDirection.Outgoing:
-                    //task = Task.Factory.StartNew(ReadHandshake).ContinueWith(_ => WriteHandshake(), TaskContinuationOptions.NotOnFaulted);
-                    task = ReadHandshakeAsync(CancellationToken.None);
-                    //task.ContinueWith(_ => WriteHandshake(), TaskContinuationOptions.NotOnFaulted);
-                    WriteHandshake();
-                    break;
-                case HandshakeDirection.Incoming:
-                    //task = Task.Factory.StartNew(WriteHandshake).ContinueWith(_ => ReadHandshake(), TaskContinuationOptions.NotOnFaulted);
-                    task = WriteHandshakeAsync(CancellationToken.None);
-                    //task.ContinueWith(_ => ReadHandshake(), TaskContinuationOptions.NotOnFaulted);
-                    ReadHandshake();
-                    break;
-            }
-            
-            if (task != null && (task.Wait(_timeout) == false || task.IsFaulted == true))
-                throw new TimeoutException("Handshake timed out");
-        }
-
+        
         public Task EnsureHandshakeCompleteAsync(HandshakeDirection direction, CancellationToken cancellationToken)
         {
-            if (IsComplete)
+            if (IsComplete || _writeLock.CurrentCount == 0)
                 return Task.CompletedTask;
-
-            //if (_lock.Read(() => _hasReceived && _hasSent))
-            //    return;
 
             switch (direction)
             {
@@ -84,38 +52,10 @@ namespace Multiformats.Stream
             return Task.FromResult(true);
         }
 
-        private void ReadHandshake()
-        {
-            if (HasReceived)
-                return;
-            //if (_lock.Read(() => _hasReceived))
-            //    return;
-
-            if (!_readLock.Wait(_timeout))
-                throw new TimeoutException("Receiving handshake timed out.");
-            try
-            {
-                _lock.Write(() => _hasReceived = true, (int)_timeout.TotalMilliseconds);
-
-                foreach (var protocol in _protocols)
-                {
-                    var token = MultistreamMuxer.ReadNextToken(_ms);
-                    if (token != protocol)
-                        throw new Exception($"Protocol mismatch, {token} != {protocol}");
-                }
-            }
-            finally
-            {
-                _readLock.Release();
-            }
-        }
-
         private async Task ReadHandshakeAsync(CancellationToken cancellationToken)
         {
             if (HasReceived)
                 return;
-            //if (_lock.Read(() => _hasReceived))
-            //    return;
 
             if (!await _readLock.WaitAsync(_timeout, cancellationToken).ConfigureAwait(false))
                 throw new TimeoutException("Receiving handshake timed out.");
@@ -137,36 +77,10 @@ namespace Multiformats.Stream
             }
         }
 
-        private void WriteHandshake()
-        {
-            if (HasSent)
-                return;
-            //if (_lock.Read(() => _hasSent))
-            //    return;
-
-            if (!_writeLock.Wait(_timeout))
-                throw new TimeoutException("Sending handshake timed out.");
-            try
-            {
-                _lock.Write(() => _hasSent = true, (int)_timeout.TotalMilliseconds);
-
-                foreach (var protocol in _protocols)
-                {
-                    MultistreamMuxer.DelimWrite(_ms, Encoding.UTF8.GetBytes(protocol));
-                }
-            }
-            finally
-            {
-                _writeLock.Release();
-            }
-        }
-
         private async Task WriteHandshakeAsync(CancellationToken cancellationToken)
         {
             if (HasSent)
                 return;
-            //if (_lock.Read(() => _hasSent))
-            //    return;
 
             if (!await _writeLock.WaitAsync(_timeout, cancellationToken).ConfigureAwait(false))
                 throw new TimeoutException("Sending handshake timed out.");
@@ -178,6 +92,8 @@ namespace Multiformats.Stream
                 {
                     await MultistreamMuxer.DelimWriteAsync(_ms, Encoding.UTF8.GetBytes(protocol), cancellationToken).ConfigureAwait(false);
                 }
+
+                await _ms.FlushAsync(cancellationToken);
             }
             finally
             {

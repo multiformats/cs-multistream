@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -13,38 +15,62 @@ namespace Multiformats.Stream.Tests
 {
     public class MultistreamTests
     {
-        private static void UsePipe(Action<System.IO.Stream, System.IO.Stream> action, int timeout = 1000, bool verify = false)
+        private static async Task RunWithConnectedNetworkStreamsAsync(Func<NetworkStream, NetworkStream, Task> func)
         {
-            var ab = SocketPipe.Create(timeout);
-
+            var listener = new TcpListener(IPAddress.Loopback, 0);
             try
             {
-                action(ab.Item1, ab.Item2);
-                if (verify)
-                    VerifyPipe(ab.Item1, ab.Item2);
+                listener.Start(1);
+                var clientEndPoint = (IPEndPoint)listener.LocalEndpoint;
+
+                using (var client = new TcpClient(clientEndPoint.AddressFamily))
+                {
+                    var remoteTask = listener.AcceptTcpClientAsync();
+                    var clientConnectTask = client.ConnectAsync(clientEndPoint.Address, clientEndPoint.Port);
+
+                    await Task.WhenAll(remoteTask, clientConnectTask);
+
+                    using (var remote = remoteTask.Result)
+                    using (var serverStream = new NetworkStream(remote.Client, true))
+                    using (var clientStream = new NetworkStream(client.Client, true))
+                    {
+                        await func(serverStream, clientStream);
+                    }
+                }
             }
             finally
             {
-                ab.Item1?.Dispose();
-                ab.Item2?.Dispose();
+                listener.Stop();
             }
+        }
+
+        private static void UsePipe(Action<System.IO.Stream, System.IO.Stream> action, int timeout = 1000, bool verify = false)
+        {
+            RunWithConnectedNetworkStreamsAsync((a, b) =>
+            {
+                try
+                {
+                    action(a, b);
+                    if (verify)
+                        VerifyPipe(a, b);
+
+                    return Task.CompletedTask;
+                }
+                catch (Exception e)
+                {
+                    return Task.FromException(e);
+                }
+            }).Wait();
         }
 
         private static async Task UsePipeAsync(Func<System.IO.Stream, System.IO.Stream, Task> action, int timeout = 1000, bool verify = false)
         {
-            var ab = SocketPipe.Create(timeout);
-
-            try
+            await RunWithConnectedNetworkStreamsAsync(async (a, b) =>
             {
-                await action(ab.Item1, ab.Item2);
+                await action(a, b);
                 if (verify)
-                    await VerifyPipeAsync(ab.Item1, ab.Item2);
-            }
-            finally
-            {
-                ab.Item1?.Dispose();
-                ab.Item2?.Dispose();
-            }
+                    await VerifyPipeAsync(a, b);
+            });
         }
 
         private static void UsePipeWithMuxer(Action<System.IO.Stream, System.IO.Stream, MultistreamMuxer> action,
@@ -108,9 +134,9 @@ namespace Multiformats.Stream.Tests
         }
 
         [Fact]
-        public void Async_TestInvalidProtocol()
+        public Task Async_TestInvalidProtocol()
         {
-            UsePipeWithMuxer(async (a, b, mux) =>
+            return UsePipeWithMuxerAsync(async (a, b, mux) =>
             {
                 mux.NegotiateAsync(a, CancellationToken.None);
 
@@ -141,7 +167,7 @@ namespace Multiformats.Stream.Tests
         [Fact]
         public void Async_TestSelectOne()
         {
-            UsePipeWithMuxer(async (a, b, mux) =>
+            UsePipeWithMuxerAsync(async (a, b, mux) =>
             {
                 mux.AddHandler(new TestHandler("/a", null));
                 mux.AddHandler(new TestHandler("/b", null));
@@ -172,9 +198,9 @@ namespace Multiformats.Stream.Tests
         }
 
         [Fact]
-        public void Async_TestSelectFails()
+        public Task Async_TestSelectFails()
         {
-            UsePipeWithMuxer(async (a, b, mux) =>
+            return UsePipeWithMuxerAsync(async (a, b, mux) =>
             {
                 mux.AddHandler(new TestHandler("/a", null));
                 mux.AddHandler(new TestHandler("/b", null));
@@ -357,29 +383,25 @@ namespace Multiformats.Stream.Tests
         }
 
 
-        //[Fact]
+        [Fact]
         public Task TestAddSyncAndAsyncHandlers()
         {
             return UsePipeWithMuxerAsync(async (a, b, mux) =>
             {
-                mux.AddHandler("/foo", asyncHandle: async (p, s, c) =>
-                {
-                    var buffer = new byte[4096];
-                    new Random(Environment.TickCount).NextBytes(buffer);
-                    await s.WriteAsync(buffer, 0, buffer.Length, c);
-                    return true;
-                });
+                mux.AddHandler("/foo", asyncHandle: (p, s, c) => Task.FromResult(true));
 
-                MultistreamMuxer.SelectProtoOrFailAsync("/foo", a, CancellationToken.None);
+                var selectTask = MultistreamMuxer.SelectProtoOrFailAsync("/foo", a, CancellationToken.None);
 
                 var result = await mux.HandleAsync(b, CancellationToken.None);
+
+                await selectTask;
 
                 Assert.True(result);
             }, verify: true);
         }
 
         //TODO: there is a deadlock somewhere
-        //[Fact]
+        [Fact]
         public void TestLazyAndMuxWrite()
         {
             UsePipeWithMuxer((a, b, mux) =>
@@ -388,26 +410,22 @@ namespace Multiformats.Stream.Tests
                 mux.AddHandler("/b", null);
                 mux.AddHandler("/c", null);
 
-                var done = new ManualResetEvent(false);
-
-                Task.Run(() =>
+                var doneTask = Task.Factory.StartNew(() =>
                 {
                     var selected = mux.Negotiate(a);
-                    Assert.Equal(selected.Protocol, "/c");
+                    Assert.Equal("/c", selected.Protocol);
 
                     var msg = Encoding.UTF8.GetBytes("hello");
                     a.Write(msg, 0, msg.Length);
-
-                    done.Set();
                 });
 
                 var lb = Multistream.CreateSelect(b, "/c");
                 var msgin = new byte[5];
                 var received = lb.Read(msgin, 0, msgin.Length);
                 Assert.Equal(received, msgin.Length);
-                Assert.Equal(Encoding.UTF8.GetString(msgin), "hello");
+                Assert.Equal("hello", Encoding.UTF8.GetString(msgin));
 
-                Assert.True(done.WaitOne(500));
+                Assert.True(doneTask.Wait(500));
 
                 VerifyPipe(a, lb);
             });
@@ -479,6 +497,7 @@ namespace Multiformats.Stream.Tests
         {
             var mes = new byte[1024];
             new Random().NextBytes(mes);
+            mes[0] = 0x01;
 
             var aw = a.WriteAsync(mes, 0, mes.Length);
             var bw = b.WriteAsync(mes, 0, mes.Length);

@@ -11,7 +11,7 @@ fi
 
 export FrameworkPathOverride=$(dirname $(which mono))/../lib/mono/4.5/
 
-dotnet test ./test/Multiformats.Stream.Tests/Multiformats.Stream.Tests.csproj -c Release -f netcoreapp1.1
+dotnet test ./test/Multiformats.Stream.Tests/Multiformats.Stream.Tests.csproj -c Release -f netcoreapp1.1 -v d
 dotnet build ./test/Multiformats.Stream.Tests/Multiformats.Stream.Tests.csproj -c Release -f net461
 
-mono $HOME/.nuget/packages/xunit.runner.console/2.2.0/tools/xunit.console.exe ./test/Multiformats.Stream.Tests/bin/Release/net461/Multiformats.Stream.Tests.dll
+mono $HOME/.nuget/packages/xunit.runner.console/2.3.1/tools/net452/xunit.console.exe ./test/Multiformats.Stream.Tests/bin/Release/net461/Multiformats.Stream.Tests.dll

@@ -1,6 +1,14 @@
 language: csharp
-dotnet: 2.1.300-preview2-008533
-mono: latest
+
+dotnet:
+  - 2.1.300-preview2-008533
+    mono: none
+    env: TEST_DOTNET=1 TEST_MONO=0
+mono:
+  - latest
+    dotnet: none
+    env: TEST_DOTNET=0 TEST_MONO=1
+
 os:
   - linux
   - osx

@@ -66,7 +66,7 @@ after_build:
 test: off
 
 test_script:
-  - dotnet test --configuration Debug --framework netcoreapp2.0 --logger trx;logfilename=TestResult.xml --results-directory "%APPVEYOR_BUILD_FOLDER%\coverage.xml" /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
+  - dotnet test --configuration Debug --framework netcoreapp2.0 --logger trx;logfilename=TestResult.xml --results-directory "%APPVEYOR_BUILD_FOLDER%\coverage.xml" /p:CollectCoverage=true /p:CoverletOutputFormat=opencover %APPVEYOR_BUILD_FOLDER%\test\Multiformats.Stream.Tests\Multiformats.Stream.Tests.csproj
 
 after_test:
   - ps: |

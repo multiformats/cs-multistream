@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-mono=${TEST_MONO:=0}
-dotnet=${TEST_DOTNET:=0}
+mono=${MONO:=0}
+dotnet=${DOTNET:=0}
 
 case "$1" in
   dotnet)
@@ -28,14 +28,13 @@ if [ $dotnet -eq 1 ]; then
     dotnet restore --runtime ubuntu-x64
   fi
 
-  dotnet test ./test/Multiformats.Stream.Tests/Multiformats.Stream.Tests.csproj -c Release -f netcoreapp2.1
-  dotnet build ./test/Multiformats.Stream.Tests/Multiformats.Stream.Tests.csproj -c Release -f net461
+  dotnet test ./test/Multiformats.Stream.Tests/Multiformats.Stream.Tests.csproj -c Release -f netcoreapp2.0
 fi
 
 if [ $mono -eq 1 ]; then
   echo "* building and testing mono"
   export FrameworkPathOverride=$(dirname $(which mono))/../lib/mono/4.5/
-  mono --framework=v4.0 nuget.exe restore
+  nuget restore
   xbuild ./test/Multiformats.Stream.Tests/Multiformats.Stream.Tests.csproj /p:Configuration=Release /p:Platform:net461
-  mono $HOME/.nuget/packages/xunit.runner.console/*/tools/net452/xunit.console.exe ./test/Multiformats.Stream.Tests/bin/Release/net461/Multiformats.Stream.Tests.dll
+  mono $HOME/.nuget/packages/xunit.runner.console/*/tools/net452/xunit.console.exe ./test/Multiformats.Stream.Tests/bin/Release/*/Multiformats.Stream.Tests.dll
 fi

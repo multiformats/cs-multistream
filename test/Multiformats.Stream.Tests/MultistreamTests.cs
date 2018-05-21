@@ -358,9 +358,10 @@ namespace Multiformats.Stream.Tests
                     return true;
                 }));
 
-                Task.Factory.StartNew(() => MultistreamMuxer.SelectProtoOrFail("/c", a));
+                var task = Task.Factory.StartNew(() => MultistreamMuxer.SelectProtoOrFail("/c", a));
 
                 Assert.True(mux.Handle(b));
+                Assert.True(task.Wait(500));
             }, verify: true);
         }
 
@@ -372,9 +373,10 @@ namespace Multiformats.Stream.Tests
                 mux.AddHandler("/foo", (p, s) => throw new XunitException("should not get executed"));
                 mux.AddHandler("/foo", (p, s) => true);
 
-                Task.Factory.StartNew(() => MultistreamMuxer.SelectProtoOrFail("/foo", a));
+                var task = Task.Factory.StartNew(() => MultistreamMuxer.SelectProtoOrFail("/foo", a));
 
                 Assert.True(mux.Handle(b));
+                Assert.True(task.Wait(500));
             }, verify: true);
         }
 
@@ -472,11 +474,11 @@ namespace Multiformats.Stream.Tests
         {
             var mes = new byte[1024];
             new Random().NextBytes(mes);
-            Task.Run(() =>
+            Task.Factory.StartNew(() =>
             {
                 a.Write(mes, 0, mes.Length);
                 b.Write(mes, 0, mes.Length);
-            }).Wait();
+            }).Wait(500);
 
             var buf = new byte[mes.Length];
             var n = a.Read(buf, 0, buf.Length);

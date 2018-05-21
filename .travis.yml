@@ -1,5 +1,5 @@
 language: csharp
-dotnet: 2.1.200
+dotnet: 2.1.300-preview2-008533
 mono: latest
 os:
   - linux

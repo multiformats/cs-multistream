@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net461;netcoreapp1.1</TargetFrameworks>
+    <TargetFrameworks>net461;netcoreapp2.1</TargetFrameworks>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <PlatformTarget>x64</PlatformTarget>
     <DebugType>full</DebugType>
@@ -10,7 +10,6 @@
     <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
     <RuntimeIdentifiers>win-x64;osx-x64;linux-x64</RuntimeIdentifiers>
     <PackageTargetFallback Condition=" '$(TargetFramework)' == 'net461' ">$(PackageTargetFallback);netstandard;portable-net461+win8</PackageTargetFallback>
-    <RuntimeFrameworkVersion>1.1.1</RuntimeFrameworkVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">

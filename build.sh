@@ -28,7 +28,7 @@ if [ $dotnet -eq 1 ]; then
     dotnet restore --runtime ubuntu-x64
   fi
 
-  dotnet test ./test/Multiformats.Stream.Tests/Multiformats.Stream.Tests.csproj -c Release -f netcoreapp2.0
+  dotnet test ./test/Multiformats.Stream.Tests/Multiformats.Stream.Tests.csproj -c Release -f netcoreapp2.0 --blame
 fi
 
 if [ $mono -eq 1 ]; then

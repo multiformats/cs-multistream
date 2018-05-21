@@ -36,5 +36,5 @@ if [ $mono -eq 1 ]; then
   export FrameworkPathOverride=$(dirname $(which mono))/../lib/mono/4.5/
   nuget restore
   msbuild ./test/Multiformats.Stream.Tests/Multiformats.Stream.Tests.csproj /p:Configuration=Release /p:Platform=net461
-  mono $HOME/.nuget/packages/xunit.runner.console/*/tools/net452/xunit.console.exe ./test/Multiformats.Stream.Tests/bin/Release/net461/Multiformats.Stream.Tests.dll
+  mono $HOME/.nuget/packages/xunit.runner.console/*/tools/net452/xunit.console.exe ./test/Multiformats.Stream.Tests/bin/net461/Release/net461/Multiformats.Stream.Tests.dll
 fi

@@ -56,10 +56,9 @@ namespace Multiformats.Stream
 
         public override int Read(byte[] buffer, int offset, int count)
         {
-            if (!_handshaker.EnsureHandshakeCompleteAsync(MultistreamHandshaker.HandshakeDirection.Incoming, CancellationToken.None).Wait(TimeSpan.FromSeconds(3)))
-                return 0;
-
-            return count == 0 ? 0 : _stream.Read(buffer, offset, count);
+            var task = ReadAsync(buffer, offset, count, CancellationToken.None);
+            task.Wait(ReadTimeout);
+            return task.IsFaulted ? -1 : task.Result;
         }
 
         public override async Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
@@ -74,9 +73,7 @@ namespace Multiformats.Stream
 
         public override void Write(byte[] buffer, int offset, int count)
         {
-            _handshaker.EnsureHandshakeComplete(MultistreamHandshaker.HandshakeDirection.Outgoing);
-
-            _stream.Write(buffer, offset, count);
+            WriteAsync(buffer, offset, count, CancellationToken.None).Wait(WriteTimeout);
         }
 
         public override async Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)

@@ -1,0 +1,6 @@
+{
+  "parallelizeAssembly": false,
+  "parallelizeTestCollections": false,
+  "diagnosticMessages": true,
+  "longRunningTestSeconds": 15
+}

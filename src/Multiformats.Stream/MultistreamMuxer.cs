@@ -6,7 +6,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using BinaryEncoding;
-using LibP2P.Utilities.Extensions;
 
 namespace Multiformats.Stream
 {
@@ -155,7 +154,7 @@ namespace Multiformats.Stream
 
             if (token != ProtocolId)
             {
-                stream.Close();
+                stream.Dispose();
                 throw ErrIncorrectVersion;
             }
 
@@ -196,7 +195,7 @@ namespace Multiformats.Stream
 
             if (token != ProtocolId)
             {
-                stream.Close();
+                stream.Dispose();
                 throw ErrIncorrectVersion;
             }
 
@@ -260,9 +259,8 @@ namespace Multiformats.Stream
             using (var buffer = new MemoryStream())
             {
                 await DelimWriteAsync(buffer, message, cancellationToken).ConfigureAwait(false);
-
-                var bytes = buffer.ToArray();
-                await stream.WriteAsync(bytes, 0, bytes.Length, cancellationToken).ConfigureAwait(false);
+                buffer.Seek(0, SeekOrigin.Begin);
+                await buffer.CopyToAsync(stream, 4096, cancellationToken).ConfigureAwait(false);
             }
             await stream.FlushAsync(cancellationToken);
         }
@@ -289,7 +287,8 @@ namespace Multiformats.Stream
                 total += res;
                 if (total == (int) length)
                     break;
-                Thread.Sleep(1);
+
+                Task.Delay(1).Wait();
             }
             if (res <= 0)
                 return string.Empty;

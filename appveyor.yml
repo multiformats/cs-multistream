@@ -4,6 +4,7 @@ environment:
 version: ${PKG_VERSION}-{build}
 configuration: Release
 platform: x64
+image: Visual Studio 2017
 
 skip_commits:
   message: /chore/
@@ -37,9 +38,6 @@ init:
   - ps: Update-AppveyorBuild -Version $env:BUILD_VERSION
   - ps: Write-Host "Build version $env:BUILD_VERSION, NuGet version $env:NUGET_VERSION, Version suffix $env:VERSION_SUFFIX"
 
-install:
-  - git submodule update --init --recursive
-
 before_build:
   - appveyor-retry dotnet restore -v Minimal --runtime win10-x64
 
@@ -71,7 +69,7 @@ before_test:
   - nuget install OpenCover -Version 4.6.519 -OutputDirectory .\tools
 
 test_script:
-  - .\tools\OpenCover.4.6.519\tools\OpenCover.Console.exe -register:user -returntargetcode -target:"%ProgramFiles%\dotnet\dotnet.exe" -targetargs:"test %APPVEYOR_BUILD_FOLDER%\test\Multiformats.Stream.Tests\Multiformats.Stream.Tests.csproj -c Debug -f netcoreapp1.1 -l trx;logfilename=TestResult.xml /p:Platform=AnyCPU" -filter:"+[Multiformats.Stream]* -[Multiformats.Stream.Benchmarks]* -[Multiformats.Stream.Tests]*" -excludebyattribute:*.ExcludeFromCodeCoverage* -hideskipped:All -output:"%APPVEYOR_BUILD_FOLDER%\coverage.xml" -oldStyle
+  - .\tools\OpenCover.4.6.519\tools\OpenCover.Console.exe -register:user -returntargetcode -target:"%ProgramFiles%\dotnet\dotnet.exe" -targetargs:"test %APPVEYOR_BUILD_FOLDER%\test\Multiformats.Stream.Tests\Multiformats.Stream.Tests.csproj -c Debug -f netcoreapp2.0 -l trx;logfilename=TestResult.xml /p:Platform=AnyCPU" -filter:"+[Multiformats.Stream]* -[Multiformats.Stream.Benchmarks]* -[Multiformats.Stream.Tests]*" -excludebyattribute:*.ExcludeFromCodeCoverage* -hideskipped:All -output:"%APPVEYOR_BUILD_FOLDER%\coverage.xml" -oldStyle
 
 after_test:
   - ps: |

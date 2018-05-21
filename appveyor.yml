@@ -65,11 +65,8 @@ after_build:
 
 test: off
 
-before_test:
-  - nuget install OpenCover -Version 4.6.519 -OutputDirectory .\tools
-
 test_script:
-  - .\tools\OpenCover.4.6.519\tools\OpenCover.Console.exe -register:user -returntargetcode -target:"%ProgramFiles%\dotnet\dotnet.exe" -targetargs:"test %APPVEYOR_BUILD_FOLDER%\test\Multiformats.Stream.Tests\Multiformats.Stream.Tests.csproj -c Debug -f netcoreapp2.0 -l trx;logfilename=TestResult.xml /p:Platform=AnyCPU" -filter:"+[Multiformats.Stream]* -[Multiformats.Stream.Benchmarks]* -[Multiformats.Stream.Tests]*" -excludebyattribute:*.ExcludeFromCodeCoverage* -hideskipped:All -output:"%APPVEYOR_BUILD_FOLDER%\coverage.xml" -oldStyle
+  - dotnet test --configuration Debug --framework netcoreapp2.0 --logger trx;logfilename=TestResult.xml --results-directory "%APPVEYOR_BUILD_FOLDER%\coverage.xml" --blame /p:Platform=AnyCPU /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
 
 after_test:
   - ps: |
@@ -77,8 +74,7 @@ after_test:
         $wc.UploadFile("https://ci.appveyor.com/api/testresults/xunit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path .\test\Multiformats.Stream.Tests\TestResults\TestResult.xml))
 
 on_success:
-  - "SET PATH=C:\\Python34;C:\\Python34\\Scripts;%PATH%"
-  - pip install codecov
+  - choco install codecov
   - codecov -f "%APPVEYOR_BUILD_FOLDER%\coverage.xml" -X gcov
 
 artifacts:
@@ -86,10 +82,10 @@ artifacts:
 
 cache:
   - '%USERPROFILE%\.local'
-  - '%USERPROFILE%\.nuget\packages -> **\project.json'
+  - '%USERPROFILE%\.nuget\packages -> **\*.csproj'
   - '%LocalAppData%\NuGet\Cache'
   - '%LocalAppData%\Python'
-  - '.\packages -> **\project.json'
+  - '.\packages -> **\*.csproj'
   - '.\tools'
   - '\Python34'
 
